@@ -1,16 +1,20 @@
 import random
-from slacker import Slacker
+from slackclient import SlackClient
 
 slack_api_token = ''
 random_seed = 0
 chunk_size = 6
 exclusion_emoji = None
 
-slack = Slacker(slack_api_token)
+slack = SlackClient(slack_api_token)
 
-response = slack.users.list()
-users = list(filter(lambda user: not user['deleted'] and not user['is_bot'] and user['id'] != 'USLACKBOT', response.body['members']))
-users = list(filter(lambda user: not user['is_restricted'] and user['profile']['status_emoji'] != exclusion_emoji, users))
+response = slack.api_call('users.list')
+users = list(
+    filter(lambda user: not user['deleted'] and not user['is_bot'] and user['id'] != 'USLACKBOT', response['members'])
+)
+users = list(
+    filter(lambda user: not user['is_restricted'] and user['profile']['status_emoji'] != exclusion_emoji, users)
+)
 
 random.seed(random_seed)
 random.shuffle(users)
