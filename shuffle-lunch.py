@@ -19,9 +19,9 @@ slack.api_call(
     text=f":game_die: {date} 셔플 런치 추첨을 시작합니다! :game_die:"
 )
 
-response = slack.api_call('users.list')
+users_list_response = slack.api_call('users.list')
 all_users = list(
-    filter(lambda user: not user['deleted'] and not user['is_bot'] and user['id'] != 'USLACKBOT', response['members'])
+    filter(lambda user: not user['deleted'] and not user['is_bot'] and user['id'] != 'USLACKBOT', users_list_response['members'])
 )
 excluded_users = list(
     filter(lambda user: not user['is_restricted'] and user['profile']['status_text'] == exclusion_status_text, all_users)
@@ -39,7 +39,7 @@ for user in excluded_users:
         )
 
 target_users = list(
-    filter(lambda user: not user['is_restricted'] and user['profile']['status_text'] == exclusion_status_text, all_users)
+    filter(lambda user: not user['is_restricted'] and user['profile']['status_text'] != exclusion_status_text, all_users)
 )
 
 
