@@ -1,22 +1,14 @@
+import config
 import datetime
 import random
 from slackclient import SlackClient
 
-chunk_size = 6
-slack_api_token = '' # bot user token required
-notice_channel = '#announcement'
-date = datetime.datetime.now().strftime('%Y-%m-%d')
-random_seed = date.replace('-', '')
-exclusion_status_text = '셔런불'
-user_notice_templates = {
-}
-
-slack = SlackClient(slack_api_token)
+slack = SlackClient(config.SLACK_API_TOKEN)
 
 slack.api_call(
     'chat.postMessage',
-    channel=notice_channel,
-    text=f":game_die: {date} 셔플 런치 추첨을 시작합니다! :game_die:"
+    channel=config.NOTICE_CHANNEL,
+    text=f":game_die: {config.DATE} 셔플 런치 추첨을 시작합니다! :game_die:"
 )
 
 users_list_response = slack.api_call('users.list')
@@ -24,7 +16,7 @@ all_users = list(
     filter(lambda user: not user['deleted'] and not user['is_bot'] and user['id'] != 'USLACKBOT', users_list_response['members'])
 )
 excluded_users = list(
-    filter(lambda user: not user['is_restricted'] and user['profile']['status_text'] == exclusion_status_text, all_users)
+    filter(lambda user: not user['is_restricted'] and user['profile']['status_text'] == config.EXCLUSION_STATUS_TEXT, all_users)
 )
 for user in excluded_users:
     response = slack.api_call(
@@ -39,23 +31,23 @@ for user in excluded_users:
         )
 
 target_users = list(
-    filter(lambda user: not user['is_restricted'] and user['profile']['status_text'] != exclusion_status_text, all_users)
+    filter(lambda user: not user['is_restricted'] and user['profile']['status_text'] != config.EXCLUSION_STATUS_TEXT, all_users)
 )
 
 
-random.seed(random_seed)
+random.seed(config.RANDOM_SEED)
 random.shuffle(target_users)
 
 n = len(target_users)
-chunk_count = int(n / chunk_size)
-remainder = n % chunk_size
+chunk_count = int(n / config.CHUNK_SIZE)
+remainder = n % config.CHUNK_SIZE
 if remainder > 0:
     chunk_count += 1
 
 start = 0
 for k in range(chunk_count):
-    size = chunk_size
-    if k >= chunk_count - (chunk_size - remainder):
+    size = config.CHUNK_SIZE
+    if k >= chunk_count - (config.CHUNK_SIZE - remainder):
         size -= 1
     selected_users = target_users[start:(start + size)]
 
@@ -70,16 +62,16 @@ for k in range(chunk_count):
         response = slack.api_call(
             'chat.postMessage',
             channel=channel,
-            text=f':tada: {date} 셔플 런치 조가 생성되었습니다. 조장은 `{selected_users[0]["real_name"]}`님 입니다! :tada:'\
+            text=f':tada: {config.DATE} 셔플 런치 조가 생성되었습니다. 조장은 `{selected_users[0]["real_name"]}`님 입니다! :tada:'\
                   '\n(조장이 불가피한 사유로 불참 시 남은 분들 중에 선출해주세요)'
         )
 
         for user in selected_users:
-            if user['id'] in user_notice_templates:
+            if user['id'] in config.USER_SPECIFIC_NOTICE_TEMPLATES:
                 slack.api_call(
                     'chat.postMessage',
                     channel=channel,
-                    text=user_notice_templates[user['id']].format(user['real_name'])
+                    text=config.USER_SPECIFIC_NOTICE_TEMPLATES[user['id']].format(user['real_name'])
                 )
 
         if response['ok']:
@@ -97,6 +89,6 @@ for k in range(chunk_count):
 
 slack.api_call(
     'chat.postMessage',
-    channel=notice_channel,
-    text=f"{date} 셔플 런치 추첨이 완료되었습니다! DM을 확인해주세요. :thanks:"
+    channel=config.NOTICE_CHANNEL,
+    text=f"{config.DATE} 셔플 런치 추첨이 완료되었습니다! DM을 확인해주세요. :thanks:"
 )
