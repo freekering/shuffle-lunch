@@ -3,7 +3,6 @@ from slackclient import SlackClient
 
 if __name__ == "__main__":
     slack = SlackClient(config.SLACK_API_TOKEN)
-
     slack.api_call(
         'chat.postMessage',
         channel=config.NOTICE_CHANNEL,
