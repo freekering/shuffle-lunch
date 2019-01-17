@@ -85,7 +85,7 @@ def shuffle(slack, target_users):
 
         start += size
 
-def post_message(slack):
+def post_notice_message(slack):
     slack.api_call(
         'chat.postMessage',
         channel=config.NOTICE_CHANNEL,
@@ -97,4 +97,4 @@ if __name__ == "__main__":
     target_users, excluded_users = fetch_users(slack)
     post_exclusion_message(slack, excluded_users)
     shuffle(slack, target_users)
-    post_message(slack)
+    post_notice_message(slack)
