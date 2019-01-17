@@ -45,7 +45,7 @@ def shuffle(slack, target_users):
     start = 0
     for k in range(chunk_count):
         size = config.CHUNK_SIZE
-        if k >= chunk_count - (config.CHUNK_SIZE - remainder):
+        if remainder > 0 and k >= chunk_count - (config.CHUNK_SIZE - remainder):
             size -= 1
         selected_users = target_users[start:(start + size)]
 
