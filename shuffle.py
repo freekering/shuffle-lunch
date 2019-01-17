@@ -3,13 +3,6 @@ import datetime
 import random
 from slackclient import SlackClient
 
-def pre_message(slack):
-    slack.api_call(
-        'chat.postMessage',
-        channel=config.NOTICE_CHANNEL,
-        text=f":game_die: {config.DATE} 셔플 런치 추첨을 시작합니다! :game_die:"
-    )
-
 def fetch_users(slack):
     users_list_response = slack.api_call('users.list')
     all_users = list(
@@ -101,7 +94,6 @@ def post_message(slack):
 
 if __name__ == "__main__":
     slack = SlackClient(config.SLACK_API_TOKEN)
-    pre_message(slack)
     target_users, excluded_users = fetch_users(slack)
     post_exclusion_message(slack, excluded_users)
     shuffle(slack, target_users)
