@@ -6,6 +6,8 @@ NOTICE_CHANNEL = '#announcement'
 DATE = 'yyyy-mm-dd'
 RANDOM_SEED = DATE.replace('-', '')
 EXCLUSION_STATUS_TEXT = '셔플런치:x:'
+LONG_TERM_ABSENT_USERS = [
+]
 USER_SPECIFIC_NOTICE_TEMPLATES = {
 }
 START_TIME_FOR_PREANNOUNCE = '내일 오후 2시 30분'

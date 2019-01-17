@@ -13,7 +13,10 @@ def pre_message(slack):
 def fetch_users(slack):
     users_list_response = slack.api_call('users.list')
     all_users = list(
-        filter(lambda user: not user['deleted'] and not user['is_bot'] and user['id'] != 'USLACKBOT', users_list_response['members'])
+        filter(
+            lambda user: not user['deleted'] and not user['is_bot'] and user['id'] != 'USLACKBOT' and user['id'] not in config.LONG_TERM_ABSENT_USERS,
+            users_list_response['members']
+        )
     )
     excluded_users = list(
         filter(lambda user: not user['is_restricted'] and user['profile']['status_text'] == config.EXCLUSION_STATUS_TEXT, all_users)
@@ -33,7 +36,7 @@ def post_exclusion_message(slack, excluded_users):
             slack.api_call(
                 'chat.postMessage',
                 channel=response['channel']['id'],
-                text=f'{user["real_name"]}님은 이번 셔플 런치에서 제외되셨습니다. 다음 셔플 런치를 기약해주시고 슬랙 status text 변경 잊지 말아주세요! :thanks:'
+                text=f'{user["real_name"]}님은 이번 셔플 런치에서 제외되셨습니다. 다음 셔플 런치를 기약해주시고 혹시 모르니 슬랙 status text 확인해주세요! :thanks:'
             )
 
 def shuffle(slack, target_users):
@@ -65,7 +68,7 @@ def shuffle(slack, target_users):
                 'chat.postMessage',
                 channel=channel,
                 text=f':tada: {config.DATE} 셔플 런치 조가 생성되었습니다. 조장은 `{selected_users[0]["real_name"]}`님 입니다! :tada:'\
-                    '\n(조장이 불가피한 사유로 불참 시 남은 분들 중에 선출해주세요)'
+                      '\n(조장이 불가피한 사유로 불참 시 남은 분들 중에 선출해주세요)'
             )
 
             for user in selected_users:
